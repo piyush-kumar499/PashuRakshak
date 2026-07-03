@@ -6,3 +6,6 @@ Verified on emulator and a physical device.
 ## 2026-07-01 - Return proper 404 for missing animal
 Checked on a small screen and a tablet.
 
+## 2026-07-03 - Polish animal list empty state
+Navigation and back stack checked after the change.
+
