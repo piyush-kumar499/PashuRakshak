@@ -9,3 +9,6 @@ Checked on a small screen and a tablet.
 ## 2026-07-03 - Polish animal list empty state
 Navigation and back stack checked after the change.
 
+## 2026-07-05 - Reduce recomposition in report form
+Main flows re-tested; no regressions spotted.
+
