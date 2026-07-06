@@ -12,3 +12,6 @@ Navigation and back stack checked after the change.
 ## 2026-07-05 - Reduce recomposition in report form
 Main flows re-tested; no regressions spotted.
 
+## 2026-07-07 - Update .gitignore for build outputs
+Kept the change scoped to the presentation layer.
+
