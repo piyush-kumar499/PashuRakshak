@@ -15,3 +15,6 @@ Main flows re-tested; no regressions spotted.
 ## 2026-07-07 - Update .gitignore for build outputs
 Kept the change scoped to the presentation layer.
 
+## 2026-07-07 - Add loading skeletons to case list
+Navigation and back stack checked after the change.
+
