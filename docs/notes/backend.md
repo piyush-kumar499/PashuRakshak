@@ -9,3 +9,6 @@ Added a follow-up note for when traffic picks up.
 ## 2026-07-04 - Add index on visit lookup query
 Smoke-tested against the local backend.
 
+## 2026-07-13 - Fix typos in API docs
+Smoke-tested against the local backend.
+
