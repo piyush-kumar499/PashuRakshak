@@ -12,3 +12,6 @@ Smoke-tested against the local backend.
 ## 2026-07-13 - Fix typos in API docs
 Smoke-tested against the local backend.
 
+## 2026-07-13 - Reduce payload size on sync endpoint
+Response shape checked against the app models.
+
