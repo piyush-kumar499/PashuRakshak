@@ -18,3 +18,6 @@ Kept the change scoped to the presentation layer.
 ## 2026-07-07 - Add loading skeletons to case list
 Navigation and back stack checked after the change.
 
+## 2026-07-13 - Handle permission denial gracefully
+Main flows re-tested; no regressions spotted.
+
