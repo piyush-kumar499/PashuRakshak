@@ -21,3 +21,6 @@ Navigation and back stack checked after the change.
 ## 2026-07-13 - Handle permission denial gracefully
 Main flows re-tested; no regressions spotted.
 
+## 2026-07-15 - Tidy up navigation graph
+Kept the change scoped to the presentation layer.
+
