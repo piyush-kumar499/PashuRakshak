@@ -27,3 +27,6 @@ Kept the change scoped to the presentation layer.
 ## 2026-07-17 - Add retry action to failed uploads
 Navigation and back stack checked after the change.
 
+## 2026-07-17 - Add retry action to failed uploads
+Verified on emulator and a physical device.
+
