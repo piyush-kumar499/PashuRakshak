@@ -24,3 +24,6 @@ Main flows re-tested; no regressions spotted.
 ## 2026-07-15 - Tidy up navigation graph
 Kept the change scoped to the presentation layer.
 
+## 2026-07-17 - Add retry action to failed uploads
+Navigation and back stack checked after the change.
+
