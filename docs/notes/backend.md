@@ -15,3 +15,6 @@ Smoke-tested against the local backend.
 ## 2026-07-13 - Reduce payload size on sync endpoint
 Response shape checked against the app models.
 
+## 2026-07-20 - Refactor mail helper into module
+No schema changes; existing rows unaffected.
+
