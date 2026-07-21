@@ -30,3 +30,6 @@ Navigation and back stack checked after the change.
 ## 2026-07-17 - Add retry action to failed uploads
 Verified on emulator and a physical device.
 
+## 2026-07-21 - Fix image compression on low storage
+Checked on a small screen and a tablet.
+
