@@ -33,3 +33,6 @@ Verified on emulator and a physical device.
 ## 2026-07-21 - Fix image compression on low storage
 Checked on a small screen and a tablet.
 
+## 2026-07-27 - Fix crash when photo URI is revoked
+Kept the change scoped to the presentation layer.
+
