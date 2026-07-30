@@ -36,3 +36,6 @@ Checked on a small screen and a tablet.
 ## 2026-07-27 - Fix crash when photo URI is revoked
 Kept the change scoped to the presentation layer.
 
+## 2026-07-30 - Fix crash when photo URI is revoked
+Navigation and back stack checked after the change.
+
