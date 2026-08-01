@@ -39,3 +39,6 @@ Kept the change scoped to the presentation layer.
 ## 2026-07-30 - Fix crash when photo URI is revoked
 Navigation and back stack checked after the change.
 
+## 2026-08-01 - Reduce recomposition in report form
+Verified on emulator and a physical device.
+
