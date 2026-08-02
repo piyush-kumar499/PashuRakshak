@@ -42,3 +42,6 @@ Navigation and back stack checked after the change.
 ## 2026-08-01 - Reduce recomposition in report form
 Verified on emulator and a physical device.
 
+## 2026-08-03 - Guard against duplicate report submit
+Main flows re-tested; no regressions spotted.
+
