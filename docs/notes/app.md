@@ -45,3 +45,6 @@ Verified on emulator and a physical device.
 ## 2026-08-03 - Guard against duplicate report submit
 Main flows re-tested; no regressions spotted.
 
+## 2026-08-03 - Tidy up navigation graph
+Checked on a small screen and a tablet.
+
