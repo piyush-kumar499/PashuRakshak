@@ -48,3 +48,6 @@ Main flows re-tested; no regressions spotted.
 ## 2026-08-03 - Tidy up navigation graph
 Checked on a small screen and a tablet.
 
+## 2026-08-17 - Polish animal list empty state
+Kept the change scoped to the presentation layer.
+
