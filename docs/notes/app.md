@@ -51,3 +51,6 @@ Checked on a small screen and a tablet.
 ## 2026-08-17 - Polish animal list empty state
 Kept the change scoped to the presentation layer.
 
+## 2026-08-20 - Return proper 404 for missing animal
+Navigation and back stack checked after the change.
+
