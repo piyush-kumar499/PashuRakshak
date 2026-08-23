@@ -57,3 +57,6 @@ Navigation and back stack checked after the change.
 ## 2026-08-23 - Fix image compression on low storage
 Main flows re-tested; no regressions spotted.
 
+## 2026-08-23 - Log slow queries in dev mode
+Kept the change scoped to the presentation layer.
+
