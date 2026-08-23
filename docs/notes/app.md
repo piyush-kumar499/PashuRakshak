@@ -54,3 +54,6 @@ Kept the change scoped to the presentation layer.
 ## 2026-08-20 - Return proper 404 for missing animal
 Navigation and back stack checked after the change.
 
+## 2026-08-23 - Fix image compression on low storage
+Main flows re-tested; no regressions spotted.
+
