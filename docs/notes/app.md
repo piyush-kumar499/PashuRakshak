@@ -60,3 +60,6 @@ Main flows re-tested; no regressions spotted.
 ## 2026-08-23 - Log slow queries in dev mode
 Kept the change scoped to the presentation layer.
 
+## 2026-08-25 - Add confirmation dialog for delete actions
+Main flows re-tested; no regressions spotted.
+
