@@ -21,3 +21,6 @@ No schema changes; existing rows unaffected.
 ## 2026-08-25 - Handle B2 timeouts with retry
 Verified with an empty database as well as seeded data.
 
+## 2026-08-25 - Show last sync time on profile
+Smoke-tested against the local backend.
+
