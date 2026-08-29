@@ -66,3 +66,6 @@ Main flows re-tested; no regressions spotted.
 ## 2026-08-29 - Add loading skeletons to case list
 Checked on a small screen and a tablet.
 
+## 2026-08-29 - Handle offline state in case detail
+Kept the change scoped to the presentation layer.
+
