@@ -63,3 +63,6 @@ Kept the change scoped to the presentation layer.
 ## 2026-08-25 - Add confirmation dialog for delete actions
 Main flows re-tested; no regressions spotted.
 
+## 2026-08-29 - Add loading skeletons to case list
+Checked on a small screen and a tablet.
+
