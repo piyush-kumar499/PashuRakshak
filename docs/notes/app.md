@@ -69,3 +69,6 @@ Checked on a small screen and a tablet.
 ## 2026-08-29 - Handle offline state in case detail
 Kept the change scoped to the presentation layer.
 
+## 2026-09-03 - Add pull-down dismiss on bottom sheets
+Navigation and back stack checked after the change.
+
