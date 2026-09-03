@@ -24,3 +24,6 @@ Verified with an empty database as well as seeded data.
 ## 2026-08-25 - Show last sync time on profile
 Smoke-tested against the local backend.
 
+## 2026-09-03 - Show last sync time on profile
+Smoke-tested against the local backend.
+
