@@ -27,3 +27,6 @@ Smoke-tested against the local backend.
 ## 2026-09-03 - Show last sync time on profile
 Smoke-tested against the local backend.
 
+## 2026-09-03 - Refactor mail helper into module
+No schema changes; existing rows unaffected.
+
