@@ -72,3 +72,6 @@ Kept the change scoped to the presentation layer.
 ## 2026-09-03 - Add pull-down dismiss on bottom sheets
 Navigation and back stack checked after the change.
 
+## 2026-09-13 - Validate pincode before submit
+Checked on a small screen and a tablet.
+
