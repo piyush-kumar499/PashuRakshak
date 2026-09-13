@@ -75,3 +75,6 @@ Navigation and back stack checked after the change.
 ## 2026-09-13 - Validate pincode before submit
 Checked on a small screen and a tablet.
 
+## 2026-09-13 - Handle offline state in case detail
+Kept the change scoped to the presentation layer.
+
