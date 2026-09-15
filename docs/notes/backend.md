@@ -33,3 +33,6 @@ No schema changes; existing rows unaffected.
 ## 2026-09-15 - Normalize phone numbers before OTP
 Verified with an empty database as well as seeded data.
 
+## 2026-09-15 - Handle B2 timeouts with retry
+Smoke-tested against the local backend.
+
