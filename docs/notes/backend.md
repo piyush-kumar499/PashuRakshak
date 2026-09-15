@@ -30,3 +30,6 @@ Smoke-tested against the local backend.
 ## 2026-09-03 - Refactor mail helper into module
 No schema changes; existing rows unaffected.
 
+## 2026-09-15 - Normalize phone numbers before OTP
+Verified with an empty database as well as seeded data.
+
