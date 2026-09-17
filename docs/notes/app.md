@@ -78,3 +78,6 @@ Checked on a small screen and a tablet.
 ## 2026-09-13 - Handle offline state in case detail
 Kept the change scoped to the presentation layer.
 
+## 2026-09-17 - Split large view model into helpers
+Main flows re-tested; no regressions spotted.
+
