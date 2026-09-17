@@ -81,3 +81,6 @@ Kept the change scoped to the presentation layer.
 ## 2026-09-17 - Split large view model into helpers
 Main flows re-tested; no regressions spotted.
 
+## 2026-09-17 - Tidy vet case filter chips
+Checked on a small screen and a tablet.
+
