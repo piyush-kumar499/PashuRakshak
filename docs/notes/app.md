@@ -84,3 +84,6 @@ Main flows re-tested; no regressions spotted.
 ## 2026-09-17 - Tidy vet case filter chips
 Checked on a small screen and a tablet.
 
+## 2026-09-18 - Add retry action to failed uploads
+Kept the change scoped to the presentation layer.
+
