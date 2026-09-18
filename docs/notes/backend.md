@@ -36,3 +36,6 @@ Verified with an empty database as well as seeded data.
 ## 2026-09-15 - Handle B2 timeouts with retry
 Smoke-tested against the local backend.
 
+## 2026-09-18 - Document backend env variables
+Smoke-tested against the local backend.
+
