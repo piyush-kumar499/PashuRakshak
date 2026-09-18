@@ -87,3 +87,6 @@ Checked on a small screen and a tablet.
 ## 2026-09-18 - Add retry action to failed uploads
 Kept the change scoped to the presentation layer.
 
+## 2026-09-18 - Fix image compression on low storage
+Navigation and back stack checked after the change.
+
