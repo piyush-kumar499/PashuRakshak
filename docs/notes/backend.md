@@ -39,3 +39,6 @@ Smoke-tested against the local backend.
 ## 2026-09-18 - Document backend env variables
 Smoke-tested against the local backend.
 
+## 2026-09-19 - Add health check route
+No schema changes; existing rows unaffected.
+
