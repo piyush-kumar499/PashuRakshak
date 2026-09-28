@@ -42,3 +42,6 @@ Smoke-tested against the local backend.
 ## 2026-09-19 - Add health check route
 No schema changes; existing rows unaffected.
 
+## 2026-09-29 - Add rate limit to OTP endpoint
+Added a follow-up note for when traffic picks up.
+
