@@ -90,3 +90,6 @@ Kept the change scoped to the presentation layer.
 ## 2026-09-18 - Fix image compression on low storage
 Navigation and back stack checked after the change.
 
+## 2026-09-28 - Add fallback for missing village name
+Checked on a small screen and a tablet.
+
