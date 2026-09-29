@@ -93,3 +93,6 @@ Navigation and back stack checked after the change.
 ## 2026-09-28 - Add fallback for missing village name
 Checked on a small screen and a tablet.
 
+## 2026-09-29 - Handle offline state in case detail
+Navigation and back stack checked after the change.
+
