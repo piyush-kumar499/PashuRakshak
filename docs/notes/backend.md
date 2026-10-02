@@ -45,3 +45,6 @@ No schema changes; existing rows unaffected.
 ## 2026-09-29 - Add rate limit to OTP endpoint
 Added a follow-up note for when traffic picks up.
 
+## 2026-10-02 - Fix flaky sync test
+Response shape checked against the app models.
+
