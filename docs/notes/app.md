@@ -105,3 +105,6 @@ Main flows re-tested; no regressions spotted.
 ## 2026-10-02 - Improve vaccination card layout
 Kept the change scoped to the presentation layer.
 
+## 2026-10-02 - Guard against duplicate report submit
+Navigation and back stack checked after the change.
+
