@@ -99,3 +99,6 @@ Navigation and back stack checked after the change.
 ## 2026-09-30 - Fix dark theme contrast on status chips
 Verified on emulator and a physical device.
 
+## 2026-10-02 - Tidy up navigation graph
+Main flows re-tested; no regressions spotted.
+
