@@ -102,3 +102,6 @@ Verified on emulator and a physical device.
 ## 2026-10-02 - Tidy up navigation graph
 Main flows re-tested; no regressions spotted.
 
+## 2026-10-02 - Improve vaccination card layout
+Kept the change scoped to the presentation layer.
+
