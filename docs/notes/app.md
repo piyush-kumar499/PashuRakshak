@@ -108,3 +108,6 @@ Kept the change scoped to the presentation layer.
 ## 2026-10-02 - Guard against duplicate report submit
 Navigation and back stack checked after the change.
 
+## 2026-10-04 - Handle offline state in case detail
+Verified on emulator and a physical device.
+
