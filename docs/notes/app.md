@@ -111,3 +111,6 @@ Navigation and back stack checked after the change.
 ## 2026-10-04 - Handle offline state in case detail
 Verified on emulator and a physical device.
 
+## 2026-10-05 - Tune farmer dashboard spacing on small screens
+Main flows re-tested; no regressions spotted.
+
