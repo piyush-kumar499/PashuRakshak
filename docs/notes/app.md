@@ -114,3 +114,6 @@ Verified on emulator and a physical device.
 ## 2026-10-05 - Tune farmer dashboard spacing on small screens
 Main flows re-tested; no regressions spotted.
 
+## 2026-10-07 - Fix dark theme contrast on status chips
+Checked on a small screen and a tablet.
+
