@@ -6,3 +6,6 @@ Ran the full build before committing.
 ## 2026-08-23 - Add license header
 Removed a little dead weight along the way.
 
+## 2026-10-10 - Update app version metadata
+No behavioural change intended.
+
