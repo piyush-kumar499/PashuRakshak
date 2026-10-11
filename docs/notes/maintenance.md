@@ -9,3 +9,6 @@ Removed a little dead weight along the way.
 ## 2026-10-10 - Update app version metadata
 No behavioural change intended.
 
+## 2026-10-11 - Add architecture notes
+Kept the change small; follow-up noted.
+
