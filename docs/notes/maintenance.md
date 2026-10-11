@@ -12,3 +12,6 @@ No behavioural change intended.
 ## 2026-10-11 - Add architecture notes
 Kept the change small; follow-up noted.
 
+## 2026-10-11 - Add contributing notes
+Ran the full build before committing.
+
