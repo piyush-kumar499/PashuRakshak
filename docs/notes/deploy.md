@@ -6,3 +6,6 @@ Verified from a clean environment.
 ## 2026-10-10 - Verify deploy from clean clone
 Confirmed the free tier stays within limits.
 
+## 2026-10-12 - Sync dist with latest web build
+Verified from a clean environment.
+
