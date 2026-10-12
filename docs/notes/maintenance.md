@@ -15,3 +15,6 @@ Kept the change small; follow-up noted.
 ## 2026-10-11 - Add contributing notes
 Ran the full build before committing.
 
+## 2026-10-12 - Pin dependency versions
+Removed a little dead weight along the way.
+
