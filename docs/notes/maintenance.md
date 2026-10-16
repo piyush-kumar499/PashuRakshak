@@ -21,3 +21,6 @@ Removed a little dead weight along the way.
 ## 2026-10-16 - Bump Gradle wrapper
 Ran the full build before committing.
 
+## 2026-10-16 - Add architecture notes
+No behavioural change intended.
+
