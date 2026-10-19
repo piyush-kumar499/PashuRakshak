@@ -117,3 +117,6 @@ Main flows re-tested; no regressions spotted.
 ## 2026-10-07 - Fix dark theme contrast on status chips
 Checked on a small screen and a tablet.
 
+## 2026-10-19 - Check cold start timings on free tier
+Checked on a small screen and a tablet.
+
