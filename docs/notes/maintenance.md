@@ -24,3 +24,6 @@ Ran the full build before committing.
 ## 2026-10-16 - Add architecture notes
 No behavioural change intended.
 
+## 2026-10-20 - Add architecture notes
+Ran the full build before committing.
+
