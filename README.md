@@ -1357,10 +1357,19 @@ Output: `app-farmer/build/outputs/apk/debug/app-farmer-debug.apk`
 
 #### Android Release Build
 ```bash
+# Builds, verifies and publishes versioned APKs into dist/v<version>/
+build-dist.bat
+```
+
+Or, without publishing:
+```bash
 ./gradlew assembleRelease
 ```
 
-Requires keystore configuration (not included in repo).
+Requires `keystore.properties` + the release keystore (not included in the repo).
+
+Distribution details, versioning and the "App not installed" troubleshooting
+guide: see [DIST.md](DIST.md) and [dist/INSTALL.md](dist/INSTALL.md).
 
 #### Run Unit Tests
 ```bash

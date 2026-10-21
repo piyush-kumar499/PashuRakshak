@@ -1,0 +1,35 @@
+{
+    "versionName":  "1.8",
+    "versionCode":  9,
+    "buildDate":  "2026-11-10 20:14:16 +05:30",
+    "gitCommit":  "f318294",
+    "gitBranch":  "main",
+    "signedWith":  "PashuRakshak release keystore",
+    "certSha256":  "4c22286b58b4cde8e7fbba742bdf2f6ffdc78c0d4ddd7d1728843d665d276ee4",
+    "apks":  [
+                 {
+                     "app":  "farmer",
+                     "file":  "PashuRakshak-Farmer-v1.8.apk",
+                     "abis":  [
+                                  "arm64-v8a",
+                                  "armeabi-v7a",
+                                  "x86",
+                                  "x86_64"
+                              ],
+                     "sizeMb":  141.2,
+                     "sha256":  "34615694c6f1cc7ed50f6581d3c516ba9f276a566e2a2adc5d622e50d28a3766"
+                 },
+                 {
+                     "app":  "vet",
+                     "file":  "PashuRakshak-Vet-v1.8.apk",
+                     "abis":  [
+                                  "arm64-v8a",
+                                  "armeabi-v7a",
+                                  "x86",
+                                  "x86_64"
+                              ],
+                     "sizeMb":  141.2,
+                     "sha256":  "d4b6bd49fd90e8c1d93d09370295e917ebca04fe8375885c76266caa45054a7f"
+                 }
+             ]
+}
