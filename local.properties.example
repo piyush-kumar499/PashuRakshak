@@ -1,13 +1,16 @@
 # Copy this file to local.properties and fill in real values.
 #
-# REMINDER: keep local.properties out of version control — confirm it is listed
-# in .gitignore ("/local.properties" already is in this repo). Never commit keys.
+# REMINDER: local.properties is committed in this private backup repo, but it
+# must never contain machine-specific paths (see below).
 
 ## This file must *NOT* be checked into Version Control Systems,
 # as it contains information specific to your local configuration.
 
 # Location of the SDK. This is only used by Gradle.
-sdk.dir=C\:\\path\\to\\Android\\Sdk
+# Optional: local.properties in this repository intentionally omits sdk.dir so
+# it works on every machine. The build scripts pass the detected SDK through
+# ANDROID_HOME. Uncomment and set this only if you run Gradle directly.
+# sdk.dir=C\:\\path\\to\\Android\\Sdk
 
 # Backblaze B2 credentials (app key with listBuckets + writeFiles on the target bucket).
 B2_APPLICATION_KEY_ID=

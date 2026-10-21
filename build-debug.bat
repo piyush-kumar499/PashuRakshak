@@ -35,6 +35,21 @@ if not exist "%JAVA_BIN%" (
 set "PATH=%JAVA_HOME%\bin;%PATH%"
 
 echo Using JAVA_HOME=%JAVA_HOME%
+
+REM Gradle needs the Android SDK. local.properties is committed without sdk.dir
+REM (so the repo stays portable), therefore pass the detected SDK through
+REM ANDROID_HOME.
+set "ANDROID_SDK="
+if defined ANDROID_HOME if exist "%ANDROID_HOME%" set "ANDROID_SDK=%ANDROID_HOME%"
+if not defined ANDROID_SDK if defined ANDROID_SDK_ROOT if exist "%ANDROID_SDK_ROOT%" set "ANDROID_SDK=%ANDROID_SDK_ROOT%"
+if not defined ANDROID_SDK if exist "%LOCALAPPDATA%\Android\Sdk" set "ANDROID_SDK=%LOCALAPPDATA%\Android\Sdk"
+if not defined ANDROID_SDK (
+    echo ERROR: Android SDK not found. Install it with Android Studio.
+    exit /b 1
+)
+set "ANDROID_HOME=%ANDROID_SDK%"
+set "ANDROID_SDK_ROOT=%ANDROID_SDK%"
+echo Using ANDROID_HOME=%ANDROID_HOME%
 echo.
 
 echo [Step 1/2] Cleaning previous builds...
