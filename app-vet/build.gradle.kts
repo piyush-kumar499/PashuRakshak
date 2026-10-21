@@ -12,9 +12,9 @@ if (file("google-services.json").exists()) {
     apply(plugin = "com.google.gms.google-services")
 }
 
-// Release signing: reads root keystore.properties. Falls back to the debug
-// signing config so `assembleRelease` always produces an installable (signed)
-// APK even when the release keystore has not been configured.
+// Release signing: reads root keystore.properties. `dist` builds pass
+// -PrequireReleaseSigning=true and fail when the keystore is missing; a plain
+// `assembleRelease` falls back to debug signing so local builds still work.
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties().apply {
     if (keystorePropertiesFile.exists()) {
@@ -37,14 +37,32 @@ android {
         targetSdk {
             version = release(37)
         }
-        versionCode = 8
-        versionName = "1.7"
+        versionCode = 9
+        versionName = "1.8"
+    }
+
+    // Resolve the configured keystore relative to the ROOT project (not this
+    // module) and only treat it as configured when the file really exists.
+    val releaseStorePath = keystoreProperties.getProperty("storeFile")?.trim().orEmpty()
+    val releaseStoreFile = if (releaseStorePath.isEmpty()) null else rootProject.file(releaseStorePath)
+    val hasKeystoreConfig = releaseStoreFile != null && releaseStoreFile.exists()
+    // `dist` builds pass -PrequireReleaseSigning=true: they must never silently
+    // fall back to the debug key, because a debug-signed APK cannot update an
+    // installation signed with the release key ("App not installed").
+    val requireReleaseSigning = providers.gradleProperty("requireReleaseSigning")
+        .map { it.toBoolean() }
+        .getOrElse(false)
+    if (requireReleaseSigning && !hasKeystoreConfig) {
+        throw GradleException(
+            "Release signing requested but no keystore was found. " +
+                "Check keystore.properties (storeFile=${releaseStorePath.ifEmpty { "<not set>" }}).",
+        )
     }
 
     signingConfigs {
-        if (keystorePropertiesFile.exists()) {
+        if (hasKeystoreConfig) {
             create("release") {
-                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storeFile = releaseStoreFile
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
@@ -63,13 +81,20 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            signingConfig = if (keystorePropertiesFile.exists()) {
+            // A release build MUST be signed. Without a production keystore we
+            // sign with the debug key so local builds work, but such an APK is
+            // never published (build-dist.ps1 rejects it): it cannot update a
+            // release install and causes "App not installed" on other phones.
+            signingConfig = if (hasKeystoreConfig) {
                 signingConfigs.getByName("release")
             } else {
                 signingConfigs.getByName("debug")
             }
         }
     }
+
+    // Same distribution strategy as the farmer app: one standalone, all-ABI
+    // APK per release and no ABI splits, so a single file installs everywhere.
 }
 
 dependencies {
