@@ -18,3 +18,6 @@ Deployed and checked the affected routes.
 ## 2026-10-26 - Sync dist with latest web build
 Cold start timings unchanged.
 
+## 2026-10-26 - Add uptime check notes
+Verified from a clean environment.
+
