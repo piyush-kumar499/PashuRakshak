@@ -15,3 +15,6 @@ Confirmed the free tier stays within limits.
 ## 2026-10-26 - Fix Render start command
 Deployed and checked the affected routes.
 
+## 2026-10-26 - Sync dist with latest web build
+Cold start timings unchanged.
+
