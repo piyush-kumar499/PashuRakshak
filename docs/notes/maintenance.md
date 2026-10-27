@@ -30,3 +30,6 @@ Ran the full build before committing.
 ## 2026-10-26 - Bump Gradle wrapper
 Ran the full build before committing.
 
+## 2026-10-27 - Update screenshots in docs
+No behavioural change intended.
+
