@@ -36,3 +36,6 @@ No behavioural change intended.
 ## 2026-11-03 - Refresh project structure section in README
 Removed a little dead weight along the way.
 
+## 2026-11-03 - Update screenshots in docs
+Kept the change small; follow-up noted.
+
