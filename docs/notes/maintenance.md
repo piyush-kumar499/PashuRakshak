@@ -33,3 +33,6 @@ Ran the full build before committing.
 ## 2026-10-27 - Update screenshots in docs
 No behavioural change intended.
 
+## 2026-11-03 - Refresh project structure section in README
+Removed a little dead weight along the way.
+
