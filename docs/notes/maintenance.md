@@ -42,3 +42,6 @@ Kept the change small; follow-up noted.
 ## 2026-11-09 - Add license header
 Ran the full build before committing.
 
+## 2026-11-09 - Update screenshots in docs
+Removed a little dead weight along the way.
+
