@@ -123,3 +123,6 @@ Checked on a small screen and a tablet.
 ## 2026-10-20 - Add troubleshooting FAQ
 Kept the change scoped to the presentation layer.
 
+## 2026-11-09 - Check cold start timings on free tier
+Kept the change scoped to the presentation layer.
+
