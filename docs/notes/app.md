@@ -126,3 +126,6 @@ Kept the change scoped to the presentation layer.
 ## 2026-11-09 - Check cold start timings on free tier
 Kept the change scoped to the presentation layer.
 
+## 2026-11-10 - Update .gitignore for build outputs
+Verified on emulator and a physical device.
+
