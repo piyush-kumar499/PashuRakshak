@@ -37,14 +37,32 @@ android {
         targetSdk {
             version = release(37)
         }
-        versionCode = 8
-        versionName = "1.7"
+        versionCode = 9
+        versionName = "1.8"
+    }
+
+    // Resolve the configured keystore relative to the ROOT project (not this
+    // module) and only treat it as configured when the file really exists.
+    val releaseStorePath = keystoreProperties.getProperty("storeFile")?.trim().orEmpty()
+    val releaseStoreFile = if (releaseStorePath.isEmpty()) null else rootProject.file(releaseStorePath)
+    val hasKeystoreConfig = releaseStoreFile != null && releaseStoreFile.exists()
+    // `dist` builds pass -PrequireReleaseSigning=true: they must never silently
+    // fall back to the debug key, because a debug-signed APK cannot update an
+    // installation signed with the release key ("App not installed").
+    val requireReleaseSigning = providers.gradleProperty("requireReleaseSigning")
+        .map { it.toBoolean() }
+        .getOrElse(false)
+    if (requireReleaseSigning && !hasKeystoreConfig) {
+        throw GradleException(
+            "Release signing requested but no keystore was found. " +
+                "Check keystore.properties (storeFile=${releaseStorePath.ifEmpty { "<not set>" }}).",
+        )
     }
 
     signingConfigs {
-        if (keystorePropertiesFile.exists()) {
+        if (hasKeystoreConfig) {
             create("release") {
-                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storeFile = releaseStoreFile
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
@@ -63,7 +81,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            signingConfig = if (keystorePropertiesFile.exists()) {
+            // A release build MUST be signed. Without a production keystore we
+            // sign with the debug key; an unsigned release APK makes Android
+            // say "App not installed as package appears to be invalid".
+            signingConfig = if (hasKeystoreConfig) {
                 signingConfigs.getByName("release")
             } else {
                 signingConfigs.getByName("debug")
@@ -71,17 +92,9 @@ android {
         }
     }
 
-    // Per-ABI APKs: native libs are ~35MB per ABI, so a device-only APK is
-    // ~100MB lighter and installs much faster than the fat universal APK.
-    // The universal APK is still produced for emulators and unknown devices.
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
-            isUniversalApk = true
-        }
-    }
+    // Distribution is one standalone APK per app (see scripts/build-dist.ps1),
+    // so no ABI splits: Gradle emits a single "fat" APK that contains the native
+    // libraries for every supported architecture and installs on any phone.
 }
 
 dependencies {

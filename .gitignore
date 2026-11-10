@@ -1,8 +1,5 @@
 *.iml
 .gradle
-# Keeps local.properties (and any B2 keys inside it) out of version control.
-/local.properties
-/.idea
 .DS_Store
 /build
 /core/build
@@ -13,7 +10,17 @@
 .cxx
 .kotlin
 
-# Release signing material - never commit
-/keystore.properties
-/keystore/
-/dist
+# Build caches / dependency folders - not source, can be huge.
+node_modules/
+**/node_modules/
+*.log
+
+# NOTE: keystore.properties, keystore/ and local.properties ARE committed on
+# purpose: this repository is the private backup of the project and must be
+# restorable on a fresh machine (including the release signing key).
+#
+# Published APKs are build artefacts and are NOT committed (they are ~141 MB,
+# over GitHub's file limit). Rebuild them with build-dist.bat.
+/dist/**/*.apk
+/dist/**/*.idsig
+.cloud-attachments/

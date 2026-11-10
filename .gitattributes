@@ -1,0 +1,5 @@
+# Keep binaries from being diffed/merged (they are stored normally, not in LFS).
+*.pdf binary
+*.pptx binary
+*.jks binary
+*.jar binary
