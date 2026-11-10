@@ -202,7 +202,41 @@ function Resolve-AndroidSdk {
 
 Write-Step "Locating Android SDK build-tools"
 $sdk = Resolve-AndroidSdk
-if (-not $sdk) { Fail "Android SDK not found. Set sdk.dir in local.properties or ANDROID_HOME." }
+if (-not $sdk) { Fail "Android SDK not found. Install it with Android Studio, or set sdk.dir in local.properties or ANDROID_HOME." }
+
+# local.properties is committed WITHOUT sdk.dir so the repository stays
+# portable; Gradle/AGP then take the SDK from these environment variables.
+# This is what lets a fresh clone build with no manual setup.
+$env:ANDROID_HOME = $sdk
+$env:ANDROID_SDK_ROOT = $sdk
+
+# If an older copy of local.properties still points at a path that does not
+# exist on this machine, drop that line - otherwise Gradle fails before it ever
+# looks at ANDROID_HOME.
+$localPropsPath = Join-Path $root "local.properties"
+if (Test-Path $localPropsPath) {
+    $removedStaleSdkDir = $false
+    $keptLines = foreach ($line in Get-Content $localPropsPath) {
+        if ($line -match '^\s*sdk\.dir\s*=(.*)$') {
+            $value = $Matches[1].Trim().Replace('\:', ':').Replace('\\', '\')
+            if ($value -and -not (Test-Path $value)) {
+                $removedStaleSdkDir = $true
+                continue
+            }
+        }
+        $line
+    }
+    if ($removedStaleSdkDir) {
+        # UTF-8 without BOM: a BOM would corrupt the first properties key.
+        [System.IO.File]::WriteAllLines(
+            $localPropsPath,
+            [string[]]$keptLines,
+            (New-Object System.Text.UTF8Encoding($false))
+        )
+        Write-Host "    removed a stale sdk.dir from local.properties"
+    }
+}
+
 $buildToolsRoot = Join-Path $sdk "build-tools"
 if (-not (Test-Path $buildToolsRoot)) { Fail "No build-tools installed under $buildToolsRoot" }
 $buildTools = Get-ChildItem $buildToolsRoot -Directory |

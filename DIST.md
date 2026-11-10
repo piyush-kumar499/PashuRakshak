@@ -21,6 +21,30 @@ Each version folder contains exactly **two APKs** - one for the farmer app and
 one for the vet app. Both are standalone "fat" APKs that bundle the native
 libraries for every CPU architecture, so there is no per-ABI choice to make.
 
+## Restore the project on a new machine
+
+The private GitHub repository is the backup. A fresh clone rebuilds without any
+manual configuration:
+
+```powershell
+git clone https://github.com/piyush-kumar499/PashuRakshak.git
+cd PashuRakshak
+build-dist.bat
+```
+
+What is in the repository: all Kotlin source, resources, the Gradle wrapper and
+version catalog, the build scripts, the release keystore (`keystore/`) and
+`keystore.properties`. You only need a JDK 17+ and the Android SDK - both are
+installed with Android Studio, and the scripts locate them automatically.
+
+`local.properties` is committed **without** `sdk.dir` on purpose: `sdk.dir` is a
+machine-specific absolute path. The build scripts detect the SDK and export
+`ANDROID_HOME`, so the same file works on every machine.
+
+The built APKs are not stored in git (they are ~141 MB); run `build-dist.bat`
+to regenerate them. The keystore is included, so rebuilds keep the same
+signature and install over existing copies.
+
 ## Build a release
 
 Double-click `build-dist.bat` (or run it from a terminal):
