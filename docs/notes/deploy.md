@@ -21,3 +21,6 @@ Cold start timings unchanged.
 ## 2026-10-26 - Add uptime check notes
 Verified from a clean environment.
 
+## 2026-11-12 - Add uptime check notes
+Cold start timings unchanged.
+
