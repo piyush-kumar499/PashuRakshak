@@ -24,3 +24,6 @@ Verified from a clean environment.
 ## 2026-11-12 - Add uptime check notes
 Cold start timings unchanged.
 
+## 2026-11-13 - Fix Render start command
+Verified from a clean environment.
+
