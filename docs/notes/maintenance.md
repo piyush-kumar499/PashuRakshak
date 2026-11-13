@@ -45,3 +45,6 @@ Ran the full build before committing.
 ## 2026-11-09 - Update screenshots in docs
 Removed a little dead weight along the way.
 
+## 2026-11-13 - Update app version metadata
+Removed a little dead weight along the way.
+
