@@ -48,3 +48,6 @@ Removed a little dead weight along the way.
 ## 2026-11-13 - Update app version metadata
 Removed a little dead weight along the way.
 
+## 2026-11-15 - Pin dependency versions
+Kept the change small; follow-up noted.
+
