@@ -27,3 +27,6 @@ Cold start timings unchanged.
 ## 2026-11-13 - Fix Render start command
 Verified from a clean environment.
 
+## 2026-11-16 - Sync dist with latest web build
+Cold start timings unchanged.
+
