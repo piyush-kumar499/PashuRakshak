@@ -30,3 +30,6 @@ Verified from a clean environment.
 ## 2026-11-16 - Sync dist with latest web build
 Cold start timings unchanged.
 
+## 2026-11-18 - Verify deploy from clean clone
+Verified from a clean environment.
+
