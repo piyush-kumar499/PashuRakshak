@@ -11,7 +11,7 @@
     "vercel-build": "node src/db/migrate.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20 <23"
   },
   "dependencies": {
     "@libsql/client": "^0.15.0",
