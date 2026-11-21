@@ -105,7 +105,7 @@ per-device file is needed:
 - x86_64 (Emulator)
 
 ### Backend URL:
-- https://pashurakshak-z8lk.onrender.com (deployed Render backend)
+- https://pashurakshak-jvyd.onrender.com (deployed Render backend)
 
 ---
 
