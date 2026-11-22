@@ -37,8 +37,8 @@ android {
         targetSdk {
             version = release(37)
         }
-        versionCode = 9
-        versionName = "1.8"
+        versionCode = 10
+        versionName = "1.9"
     }
 
     // Resolve the configured keystore relative to the ROOT project (not this
