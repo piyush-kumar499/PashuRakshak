@@ -2,6 +2,24 @@
 
 All notable changes to the PashuRakshak Android apps (farmer and vet).
 
+## [1.9] - 2026-11-23
+
+### Apps
+
+- Every client now uses the new backend at
+  `https://pashurakshak-jvyd.onrender.com`: the Android apps read it through
+  `BuildConfig.API_BASE_URL`, the government portal and the vet registration
+  site through `VITE_API_BASE_URL`.
+- Rebuilt and re-signed farmer and vet release APKs against the new backend.
+
+### Backend and build
+
+- The previous Render service was suspended; a replacement web service was
+  deployed from `shared-backend/render.yaml` (same Turso database, so all users,
+  cases and registered app keys carried over).
+- Node is pinned to LTS 20-22 (`>=20 <23`) so Render no longer picks a
+  just-released major version that breaks installs.
+
 ## [1.8] - 2026-11-10
 
 ### Apps
