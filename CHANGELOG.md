@@ -2,6 +2,24 @@
 
 All notable changes to the PashuRakshak Android apps (farmer and vet).
 
+## [1.10] - 2026-11-23
+
+### Install and update fixes
+
+- Debug builds are now signed with the release keystore when it is configured.
+  Previously a debug APK (Android Studio "Run", or `assembleDebug`) carried the
+  machine-local debug key while published APKs carried the release key. Same
+  package name, different signatures, so installing a release APK over a debug
+  install failed with "package conflicts with an existing package"
+  (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`). Debug and release builds are now
+  interchangeable and update each other normally.
+- Version code bumped to 11 so v1.10 installs over v1.9 without a downgrade
+  error.
+
+> One-time note: a phone still holding a **debug-signed** build from before this
+> release must uninstall that app once. Android cannot replace an installed
+> signature, so this applies to any APK installed before v1.10.
+
 ## [1.9] - 2026-11-23
 
 ### Apps
