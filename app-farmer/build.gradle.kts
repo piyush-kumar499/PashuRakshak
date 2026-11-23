@@ -37,8 +37,8 @@ android {
         targetSdk {
             version = release(37)
         }
-        versionCode = 10
-        versionName = "1.9"
+        versionCode = 11
+        versionName = "1.10"
     }
 
     // Resolve the configured keystore relative to the ROOT project (not this
@@ -74,6 +74,20 @@ android {
     }
 
     buildTypes {
+        // Debug builds are signed with the release keystore whenever it is
+        // configured. Without this, a debug APK (Android Studio "Run", or
+        // assembleDebug) is signed with the machine-local debug key, and
+        // installing a published release APK over it fails with "package
+        // conflicts with an existing package"
+        // (INSTALL_FAILED_UPDATE_INCOMPATIBLE) because the signatures differ.
+        // One key for both build types makes debug and release interchangeable.
+        debug {
+            signingConfig = if (hasKeystoreConfig) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
