@@ -130,15 +130,21 @@ fun QrPassportScreen(
 
             else -> {
                 val qrResult by produceState<Result<android.graphics.Bitmap>?>(initialValue = null, animal.qrCodeId) {
-                    value = withContext(Dispatchers.Default) {
-                        runCatching {
-                            BarcodeEncoder().encodeBitmap(
-                                com.pashurakshak.app.data.remote.QrPayloads.sign(animal.qrCodeId),
-                                BarcodeFormat.QR_CODE,
-                                640,
-                                640,
-                            )
+                    // Rotate the signed payload on a timer; old screenshots expire.
+                    while (true) {
+                        value = withContext(Dispatchers.Default) {
+                            runCatching {
+                                BarcodeEncoder().encodeBitmap(
+                                    com.pashurakshak.app.data.remote.QrPayloads.sign(animal.qrCodeId),
+                                    BarcodeFormat.QR_CODE,
+                                    640,
+                                    640,
+                                )
+                            }
                         }
+                        kotlinx.coroutines.delay(
+                            com.pashurakshak.app.data.remote.QrPayloads.REFRESH_INTERVAL_MS,
+                        )
                     }
                 }
 
@@ -247,6 +253,11 @@ fun QrPassportScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                 )
                             }
+                            Text(
+                                text = "Refreshes automatically every 2 minutes",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     }
 
