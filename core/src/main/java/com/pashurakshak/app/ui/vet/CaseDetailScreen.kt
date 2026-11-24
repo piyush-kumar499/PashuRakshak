@@ -83,6 +83,7 @@ import com.pashurakshak.app.ui.theme.AppColors
 import com.pashurakshak.app.ui.farmer.formatDateMillis
 import com.pashurakshak.app.ui.farmer.formatDateTimeMillis
 import com.pashurakshak.app.ui.farmer.prettifyStatus
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -375,15 +376,41 @@ fun CaseDetailScreen(
                     }
 
                     if (state.isQrScanned && state.qrVerified) {
+                        var secondsLeft by remember(state.qrExpiresAt) {
+                            mutableStateOf(
+                                (((state.qrExpiresAt ?: 0L) - System.currentTimeMillis()) / 1000L)
+                                    .coerceAtLeast(0L),
+                            )
+                        }
+                        LaunchedEffect(state.qrExpiresAt) {
+                            val expiresAt = state.qrExpiresAt ?: return@LaunchedEffect
+                            while (true) {
+                                val remaining =
+                                    ((expiresAt - System.currentTimeMillis()) / 1000L)
+                                        .coerceAtLeast(0L)
+                                secondsLeft = remaining
+                                if (remaining <= 0L) {
+                                    viewModel.onQrExpired()
+                                    break
+                                }
+                                kotlinx.coroutines.delay(1_000L)
+                            }
+                        }
                         StatusPill(
-                            text = "QR verified: ${state.scannedQrCodeId?.take(8)}...",
+                            text = "QR verified · valid ${secondsLeft}s",
                             container = AppColors.SoftGreen,
                             content = AppColors.Healthy,
                             icon = Icons.Default.Verified,
                         )
                     }
 
-                    if (state.isQrScanned && !state.qrVerified) {
+                    if (state.isQrScanned && state.qrExpired && !state.qrVerified) {
+                        StatusPill(
+                            text = "QR expired — scan the farmer's refreshed code",
+                            container = AppColors.SoftAmber,
+                            content = AppColors.Warning,
+                        )
+                    } else if (state.isQrScanned && !state.qrVerified) {
                         StatusPill(
                             text = "QR does not match this case",
                             container = AppColors.SoftRed,
@@ -420,8 +447,19 @@ fun CaseDetailScreen(
                     if (state.qrVerified) {
                         SectionCard(title = "Visit Location") {
                             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Text(
+                                    text = "Location is read from this phone's GPS. It is not " +
+                                        "editable, so the visit distance cannot be faked by typing " +
+                                        "coordinates.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
                                 PrimaryButton(
-                                    text = "Get current location",
+                                    text = if (state.latitudeText.isBlank()) {
+                                        "Get current location"
+                                    } else {
+                                        "Refresh current location"
+                                    },
                                     onClick = {
                                         val fine = ContextCompat.checkSelfPermission(
                                             context,
@@ -429,6 +467,11 @@ fun CaseDetailScreen(
                                         ) == PackageManager.PERMISSION_GRANTED
                                         if (fine) {
                                             fetchLocation(fusedLocationClient, viewModel)
+                                        } else {
+                                            viewModel.onLocationError(
+                                                "Location permission is required to verify a visit. " +
+                                                    "Allow precise location for PashuRakshak and try again.",
+                                            )
                                         }
                                     },
                                 )
@@ -438,15 +481,32 @@ fun CaseDetailScreen(
                                 ) {
                                     AppTextField(
                                         value = state.latitudeText,
-                                        onValueChange = viewModel::onLatitudeChanged,
+                                        onValueChange = {},
                                         label = "Latitude",
                                         modifier = Modifier.weight(1f),
+                                        enabled = false,
                                     )
                                     AppTextField(
                                         value = state.longitudeText,
-                                        onValueChange = viewModel::onLongitudeChanged,
+                                        onValueChange = {},
                                         label = "Longitude",
                                         modifier = Modifier.weight(1f),
+                                        enabled = false,
+                                    )
+                                }
+                                val accuracy = state.locationAccuracyMeters
+                                if (state.hasFreshDeviceLocation && accuracy != null) {
+                                    Text(
+                                        text = "Device location captured (±${accuracy.roundToInt()} m).",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+                                state.locationError?.let { message ->
+                                    Text(
+                                        text = message,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.error,
                                     )
                                 }
                             }
@@ -471,13 +531,22 @@ fun CaseDetailScreen(
                         )
                     }
 
-                    if (state.canSubmitVisit) {
+                    if (state.qrVerified && state.assessment != null && state.assessmentText.isNotBlank()) {
                         PrimaryButton(
                             text = "Submit Visit Verification",
                             onClick = { showVisitDialog = true },
                             modifier = Modifier.fillMaxWidth(),
+                            enabled = state.canSubmitVisit,
                             loading = state.isSubmittingVisit,
                         )
+                        if (!state.hasFreshDeviceLocation) {
+                            Text(
+                                text = "Tap \"Get current location\" to capture a fresh device fix " +
+                                    "before submitting.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
 
                     if (state.canResolve) {
@@ -661,14 +730,26 @@ private fun fetchLocation(
     viewModel: CaseDetailViewModel,
 ) {
     client.getCurrentLocation(
-        Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+        Priority.PRIORITY_HIGH_ACCURACY,
         CancellationTokenSource().token,
     ).addOnSuccessListener { location ->
-        if (location != null) {
-            viewModel.onLocationFetched(location.latitude, location.longitude)
+        if (location == null) {
+            viewModel.onLocationError(
+                "Could not get a GPS fix. Move near a window or outdoors, then try again.",
+            )
+            return@addOnSuccessListener
         }
-    }.addOnFailureListener { error ->
-        // Ignore — user can enter manually
+        viewModel.onLocationFetched(
+            latitude = location.latitude,
+            longitude = location.longitude,
+            accuracyMeters = location.accuracy.toDouble().takeIf { location.hasAccuracy() },
+            isMock = location.isMock,
+            capturedAt = location.time.takeIf { it > 0L } ?: System.currentTimeMillis(),
+        )
+    }.addOnFailureListener {
+        viewModel.onLocationError(
+            "Could not get a GPS fix. Check that location is turned on and try again.",
+        )
     }
 }
 
