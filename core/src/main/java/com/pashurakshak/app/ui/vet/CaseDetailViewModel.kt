@@ -1,11 +1,7 @@
 package com.pashurakshak.app.ui.vet
 
-import android.Manifest
-import android.content.pm.PackageManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
 import com.pashurakshak.app.BuildConfig
 import com.pashurakshak.app.data.AlertRepository
 import com.pashurakshak.app.data.AnimalRepository
@@ -28,6 +24,7 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.UUID
+import kotlin.math.roundToInt
 
 data class CaseDetailUiState(
     val isLoading: Boolean = true,
@@ -41,10 +38,16 @@ data class CaseDetailUiState(
     val isQrScanned: Boolean = false,
     val scannedQrCodeId: String? = null,
     val qrVerified: Boolean = false,
+    val qrExpiresAt: Long? = null,
+    val qrExpired: Boolean = false,
     val assessment: String? = null,
     val assessmentText: String = "",
     val latitudeText: String = "",
     val longitudeText: String = "",
+    val locationAccuracyMeters: Double? = null,
+    val locationCapturedAt: Long? = null,
+    val locationIsMock: Boolean = false,
+    val locationError: String? = null,
     val resolutionNote: String = "",
 ) {
     val isReadOnly: Boolean
@@ -54,13 +57,38 @@ data class CaseDetailUiState(
             (report.status == ReportStatus.REPORTED || report.status == ReportStatus.VET_ASSIGNED) &&
             !isSubmittingFieldCheck &&
             !isReadOnly
-    val canSubmitVisit: Boolean
-        get() = !isReadOnly &&
-            qrVerified &&
-            assessment != null &&
-            assessmentText.isNotBlank() &&
+
+    /**
+     * A location counts as trustworthy only when it came from the device's
+     * location provider (never typed by hand), the OS did not mark it as a mock,
+     * it is accurate enough, and it is recent enough to describe where the vet is
+     * standing right now. The verification distance is computed from these
+     * coordinates, so any weaker source would make the check meaningless.
+     */
+    val hasFreshDeviceLocation: Boolean
+        get() = locationCapturedAt != null &&
+            !locationIsMock &&
+            locationError == null &&
             latitudeText.toDoubleOrNull() != null &&
             longitudeText.toDoubleOrNull() != null &&
+            System.currentTimeMillis() - (locationCapturedAt ?: 0L) <= LOCATION_MAX_AGE_MS
+
+    /**
+     * The signed QR is only good for its own two-minute window. A code that was
+     * scanned earlier must be re-scanned, so a saved screenshot cannot be reused
+     * to "verify" a visit later.
+     */
+    val isQrFreshNow: Boolean
+        get() = qrVerified &&
+            qrExpiresAt != null &&
+            System.currentTimeMillis() < (qrExpiresAt ?: 0L)
+
+    val canSubmitVisit: Boolean
+        get() = !isReadOnly &&
+            isQrFreshNow &&
+            assessment != null &&
+            assessmentText.isNotBlank() &&
+            hasFreshDeviceLocation &&
             !isSubmittingVisit
     val canResolve: Boolean
         get() = report != null &&
@@ -70,6 +98,14 @@ data class CaseDetailUiState(
             !isSubmittingResolution &&
             !isSubmittingFieldCheck &&
             !isSubmittingVisit
+
+    companion object {
+        /** A fix older than this cannot prove where the vet is standing now. */
+        const val LOCATION_MAX_AGE_MS: Long = 5 * 60 * 1000L
+
+        /** Poorer fixes (cell/Wi-Fi only) are too imprecise to gate a verification. */
+        const val LOCATION_MAX_ACCURACY_M: Double = 100.0
+    }
 }
 
 class CaseDetailViewModel(
@@ -245,10 +281,12 @@ class CaseDetailViewModel(
 
     fun onQrScanned(qrCodeId: String) {
         val report = _uiState.value.report
-        // First verify the QR payload's HMAC signature (anti guess/forgery), then
-        // compare its embedded id against this report's QR (animal fallback for
-        // legacy rows).
-        val signedId = com.pashurakshak.app.data.remote.QrPayloads.verifyAndExtractId(qrCodeId)
+        // First verify the QR payload's HMAC signature (anti guess/forgery) and
+        // its freshness (anti screenshot replay), then compare its embedded id
+        // against this report's QR (animal fallback for legacy rows).
+        val verification = com.pashurakshak.app.data.remote.QrPayloads.verify(qrCodeId)
+        val valid = verification as? com.pashurakshak.app.data.remote.QrPayloads.Verification.Valid
+        val signedId = valid?.id
         val expected = report?.qrCodeId?.takeIf { it.isNotBlank() }
             ?: _uiState.value.animal?.qrCodeId
         val matches = signedId != null && expected != null && signedId == expected
@@ -257,13 +295,39 @@ class CaseDetailViewModel(
                 isQrScanned = true,
                 scannedQrCodeId = qrCodeId,
                 qrVerified = matches,
+                qrExpiresAt = valid
+                    ?.takeIf { matches }
+                    ?.let {
+                        it.timestampMillis +
+                            com.pashurakshak.app.data.remote.QrPayloads.TTL_MS
+                    },
+                qrExpired = false,
                 error = when {
-                    signedId == null -> "QR code signature is invalid or forged."
+                    verification is com.pashurakshak.app.data.remote.QrPayloads.Verification.Expired ->
+                        "This QR code has expired. Ask the farmer to refresh the code on their screen and scan again."
+                    verification is com.pashurakshak.app.data.remote.QrPayloads.Verification.Invalid ->
+                        "QR code signature is invalid or forged."
                     !matches -> "This QR code does not match this case. Scan the QR shown for this report first."
                     else -> null
                 },
                 notice = if (matches) "QR verified for this case" else null,
             )
+        }
+    }
+
+    /** Called by the UI when the scanned QR's two-minute window runs out. */
+    fun onQrExpired() {
+        _uiState.update {
+            if (!it.qrVerified) {
+                it
+            } else {
+                it.copy(
+                    qrVerified = false,
+                    qrExpiresAt = null,
+                    qrExpired = true,
+                    error = "The scanned QR code expired after 2 minutes. Ask the farmer to refresh it and scan again.",
+                )
+            }
         }
     }
 
@@ -275,19 +339,71 @@ class CaseDetailViewModel(
         _uiState.update { it.copy(assessmentText = text) }
     }
 
-    fun onLatitudeChanged(text: String) {
-        _uiState.update { it.copy(latitudeText = text) }
+    /**
+     * Records a location provided by the device's location provider. There is
+     * deliberately no setter that accepts typed coordinates: the visit distance
+     * is proof of physical presence, so a manually entered latitude/longitude
+     * would make the check trivially bypassable.
+     */
+    fun onLocationFetched(
+        latitude: Double,
+        longitude: Double,
+        accuracyMeters: Double? = null,
+        isMock: Boolean = false,
+        capturedAt: Long = System.currentTimeMillis(),
+    ) {
+        val accuracy = accuracyMeters ?: Double.POSITIVE_INFINITY
+        when {
+            isMock -> _uiState.update {
+                it.copy(
+                    latitudeText = "",
+                    longitudeText = "",
+                    locationAccuracyMeters = null,
+                    locationCapturedAt = null,
+                    locationIsMock = true,
+                    locationError = "Mock location detected. Disable fake GPS and use your real device location.",
+                )
+            }
+            accuracyMeters == null -> _uiState.update {
+                it.copy(
+                    latitudeText = "",
+                    longitudeText = "",
+                    locationAccuracyMeters = null,
+                    locationCapturedAt = null,
+                    locationIsMock = false,
+                    locationError = "Location accuracy is unknown. Turn on precise location and try again.",
+                )
+            }
+            accuracy > CaseDetailUiState.LOCATION_MAX_ACCURACY_M -> _uiState.update {
+                it.copy(
+                    latitudeText = "",
+                    longitudeText = "",
+                    locationAccuracyMeters = accuracyMeters,
+                    locationCapturedAt = null,
+                    locationIsMock = false,
+                    locationError = "Location is too imprecise (±${accuracy.roundToInt()} m). Move outdoors and try again.",
+                )
+            }
+            else -> _uiState.update {
+                it.copy(
+                    latitudeText = latitude.toString(),
+                    longitudeText = longitude.toString(),
+                    locationAccuracyMeters = accuracyMeters,
+                    locationCapturedAt = capturedAt,
+                    locationIsMock = false,
+                    locationError = null,
+                )
+            }
+        }
     }
 
-    fun onLongitudeChanged(text: String) {
-        _uiState.update { it.copy(longitudeText = text) }
-    }
-
-    fun onLocationFetched(latitude: Double, longitude: Double) {
+    fun onLocationError(message: String) {
         _uiState.update {
             it.copy(
-                latitudeText = latitude.toString(),
-                longitudeText = longitude.toString(),
+                latitudeText = "",
+                longitudeText = "",
+                locationCapturedAt = null,
+                locationError = message,
             )
         }
     }
@@ -301,8 +417,9 @@ class CaseDetailViewModel(
         val assessmentText = state.assessmentText
         val qrCodeId = state.scannedQrCodeId ?: return
         val assessment = state.assessment ?: return
-        val latitude = state.latitudeText.toDouble()
-        val longitude = state.longitudeText.toDouble()
+        // Coordinates can only come from a fresh device fix; see hasFreshDeviceLocation.
+        val latitude = state.latitudeText.toDoubleOrNull() ?: return
+        val longitude = state.longitudeText.toDoubleOrNull() ?: return
         val resolvedAt = System.currentTimeMillis()
         val resolutionNote = assessmentText.trim().takeIf { it.isNotBlank() }
 
@@ -334,12 +451,16 @@ class CaseDetailViewModel(
                     val code = connection.responseCode
                     if (code !in 200..299) {
                         val body = connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
-                        // A 409 qr_mismatch means no QR verification happened, so the
-                        // report status, local verification row and farmer alert are
-                        // left untouched; show the friendly QR error instead.
+                        // A 409 qr_mismatch/qr_expired means no QR verification
+                        // happened, so the report status, local verification row
+                        // and farmer alert are left untouched; show the friendly
+                        // QR error instead.
                         val parsed = runCatching { JSONObject(body) }.getOrNull()
-                        if (code == 409 && parsed?.optString("error") == "qr_mismatch") {
-                            throw IOException("QR code did not match this animal")
+                        when (parsed?.optString("error")) {
+                            "qr_expired" -> throw IOException(
+                                "This QR code expired. Ask the farmer to refresh it and scan again."
+                            )
+                            "qr_mismatch" -> throw IOException("QR code did not match this animal")
                         }
                         throw IOException("POST /visits failed (HTTP $code): $body")
                     }
