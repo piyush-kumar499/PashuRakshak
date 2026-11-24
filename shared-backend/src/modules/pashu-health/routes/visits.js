@@ -5,7 +5,7 @@ import { verifyAppKey } from '../../../core/middleware/verifyAppKey.js';
 import { requireRole, verifySession } from '../../../core/middleware/verifySession.js';
 import { appendAuditLog } from '../services/auditLog.js';
 import { haversineKm } from '../services/clusterDetection.js';
-import { verifyAndExtractId } from '../services/qrSign.js';
+import { verifyQrPayload } from '../services/qrSign.js';
 import { idempotencyReplay, idempotencyStore } from '../services/idempotency.js';
 
 const router = Router();
@@ -99,11 +99,13 @@ router.post('/', verifyAppKey, verifySession, requireRole('vet'), async (req, re
       });
     }
 
-    // Verify the scanned QR's HMAC signature first (proof the payload wasn't
-    // guessed or forged), then compare its embedded id to this report's QR.
-    // Fallback to the animal's QR only for legacy rows.
+    // Verify the scanned QR's HMAC signature AND its freshness first (proof the
+    // payload wasn't guessed, forged, or replayed from an old screenshot), then
+    // compare its embedded id to this report's QR. Fallback to the animal's QR
+    // only for legacy rows.
     const expectedQrCodeId = str(reportRow.report_qr_code_id) || str(reportRow.animal_qr_code_id);
-    const signedId = verifyAndExtractId(scannedQrCodeId ?? '', req.appApiKey);
+    const qrCheck = verifyQrPayload(scannedQrCodeId ?? '', req.appApiKey);
+    const signedId = qrCheck.reason === 'ok' ? qrCheck.id : null;
     const matched = signedId && expectedQrCodeId && signedId === expectedQrCodeId ? 1 : 0;
 
     const now = Date.now();
@@ -119,12 +121,14 @@ router.post('/', verifyAppKey, verifySession, requireRole('vet'), async (req, re
     const secondsSinceReport = reportRow.created_at ? (now - reportRow.created_at) / 1000 : null;
     const flags = [];
     if (!matched) flags.push('qr_mismatch');
-    if (!signedId) flags.push('invalid_qr_signature');
+    if (qrCheck.reason === 'invalid') flags.push('invalid_qr_signature');
+    if (qrCheck.reason === 'expired') flags.push('qr_expired');
     if (distanceKm != null && distanceKm > 1) flags.push('gps_far_from_report');
     if (secondsSinceReport != null && secondsSinceReport < 60) flags.push('verified_too_quickly');
     let confidence = 100;
     if (!matched) confidence -= 50;
-    if (!signedId) confidence -= 20;
+    if (qrCheck.reason === 'invalid') confidence -= 20;
+    if (qrCheck.reason === 'expired') confidence -= 20;
     if (distanceKm != null) confidence -= Math.min(Math.round(distanceKm * 10), 30);
     if (flags.includes('verified_too_quickly')) confidence -= 15;
     confidence = Math.max(0, Math.min(100, confidence));
@@ -137,16 +141,24 @@ router.post('/', verifyAppKey, verifySession, requireRole('vet'), async (req, re
       args: [visitId, reportId, vetUserId, scannedQrCodeId, matched, latitude, longitude, now, confidence, flagged],
     });
 
-    // A QR that does not match this report must NOT confirm the visit.
+    // A QR that does not match this report must NOT confirm the visit. Expired
+    // codes (a screenshot older than the 2-minute window) get their own error
+    // so the vet UI can ask the farmer to refresh and scan again.
     if (!matched) {
+      const error = qrCheck.reason === 'expired' ? 'qr_expired' : 'qr_mismatch';
       await appendAuditLog(db, {
         actor: vetUserId,
-        action: 'visit_rejected_qr_mismatch',
+        action: error === 'qr_expired' ? 'visit_rejected_qr_expired' : 'visit_rejected_qr_mismatch',
         entityType: 'report',
         entityId: reportId,
-        payload: { matched, confidence, flags },
+        payload: { matched, confidence, flags, qrReason: qrCheck.reason },
       });
-      return res.status(409).json({ error: "qr_mismatch", message: "Scanned QR does not match this animal" });
+      return res.status(409).json({
+        error,
+        message: error === 'qr_expired'
+          ? 'This QR code has expired. Ask the farmer to refresh it and scan again.'
+          : 'Scanned QR does not match this animal',
+      });
     }
 
     // On a match only: set vet_assessment and close the case. A successful

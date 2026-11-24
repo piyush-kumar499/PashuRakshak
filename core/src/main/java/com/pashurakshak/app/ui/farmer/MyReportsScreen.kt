@@ -199,15 +199,20 @@ fun ReportQrDialog(item: MyReportItem, onDismiss: () -> Unit) {
         initialValue = null,
         item.report.qrCodeId,
     ) {
-        value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
-            runCatching {
-                com.journeyapps.barcodescanner.BarcodeEncoder().encodeBitmap(
-                    com.pashurakshak.app.data.remote.QrPayloads.sign(item.report.qrCodeId),
-                    com.google.zxing.BarcodeFormat.QR_CODE,
-                    640,
-                    640,
-                )
+        // Re-sign on a timer so the visible code is always inside the server's
+        // freshness window; an old screenshot stops working after two minutes.
+        while (true) {
+            value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+                runCatching {
+                    com.journeyapps.barcodescanner.BarcodeEncoder().encodeBitmap(
+                        com.pashurakshak.app.data.remote.QrPayloads.sign(item.report.qrCodeId),
+                        com.google.zxing.BarcodeFormat.QR_CODE,
+                        640,
+                        640,
+                    )
+                }
             }
+            kotlinx.coroutines.delay(com.pashurakshak.app.data.remote.QrPayloads.REFRESH_INTERVAL_MS)
         }
     }
     androidx.compose.material3.AlertDialog(
@@ -235,6 +240,11 @@ fun ReportQrDialog(item: MyReportItem, onDismiss: () -> Unit) {
                 )
                 Text(
                     text = "Show this to the vet during the visit so they can verify this case.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = "The code refreshes automatically every 2 minutes; old screenshots stop working.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

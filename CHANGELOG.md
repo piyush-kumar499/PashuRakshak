@@ -2,6 +2,26 @@
 
 All notable changes to the PashuRakshak Android apps (farmer and vet).
 
+## [1.11] - 2026-11-24
+
+### Visit verification hardening
+
+- **Rotating, short-lived QR codes.** The farmer's report and animal QR codes are
+  now re-signed automatically about every 1¾ minutes, and a signed payload is
+  only accepted for **2 minutes** after it was generated. The vet app rejects an
+  expired code at scan time and shows a live countdown for the code it scanned;
+  the backend independently rejects an expired payload, so a photo or screenshot
+  of the QR can no longer be replayed later. A vet must re-scan the farmer's
+  refreshed code. (Deployments can tune the server window with `QR_TTL_MS`.)
+- **Visit coordinates can no longer be typed.** The vet's case screen made
+  latitude/longitude editable text fields, which made any distance check trivial
+  to bypass. They are now read-only and only filled from a fresh device GPS fix
+  (`PRIORITY_HIGH_ACCURACY`). A fix is rejected when it is older than 5 minutes,
+  when the OS marks it as a mock location, or when its accuracy is worse than
+  ±100 m. The submit button stays disabled until a trustworthy fix is captured.
+- The visit submission now surfaces the backend's distinct `qr_expired` error
+  instead of a generic failure.
+
 ## [1.10] - 2026-11-23
 
 ### Install and update fixes
